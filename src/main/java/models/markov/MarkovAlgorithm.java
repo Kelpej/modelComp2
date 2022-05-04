@@ -90,24 +90,20 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
         commands.forEach(rule -> rule.matcher =
             Pattern.compile(isNumeric ? rule.left.replace("|", "\\|") : rule.left)
                     .matcher(temp));
-        commands.forEach(rule -> System.out.println(rule.matcher.pattern()));
 
         for (int i = 0; i < steps; i++) {
             var command = commands.stream()
-                    //todo не робе
-                    .filter(rule -> rule.matcher.find() || rule.getLeft().isEmpty())
+                    .filter(rule -> rule.matcher.find(0) || rule.getLeft().isEmpty())
                     .findFirst();
 
             if (command.isPresent()) {
                 var rule = command.get();
                 rule.execute();
-                System.out.println(rule);
-                System.out.println(temp);
                 if (rule.isEnd)
                     break;
             }
         }
-        return temp.toString();
+        return isNumeric ? convertNumeric(temp) : temp.toString();
     }
 
     @Override

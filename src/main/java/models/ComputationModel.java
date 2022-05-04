@@ -2,6 +2,7 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public abstract class ComputationModel<T extends Command> {
     protected String name;
@@ -24,5 +25,13 @@ public abstract class ComputationModel<T extends Command> {
 
     public void addCommands(List<T> commands) {
         this.commands.addAll(commands);
+    }
+
+    protected static String convertNumeric(StringBuilder output) {
+        var matcher = Pattern.compile("\\|+").matcher(output);
+        while (matcher.find(0))
+            output.replace(matcher.start(), matcher.end(),
+                    String.valueOf(output.substring(matcher.start(), matcher.end()).length()));
+        return output.toString();
     }
 }

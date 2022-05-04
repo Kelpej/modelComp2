@@ -17,6 +17,6 @@ public class Test {
         algorithm.addCommands(commands);
         System.out.println(algorithm);
         var controller = new MarkovController(List.of(algorithm));
-        System.out.println(controller.execute(0, "|||||", 5));
+        System.out.println(controller.execute(0, "|||||", 1000));
     }
 }
