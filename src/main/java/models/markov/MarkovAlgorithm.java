@@ -3,6 +3,7 @@ package models.markov;
 import models.ComputationModel;
 import models.Command;
 
+import java.io.FilterOutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -13,8 +14,8 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
     private char[] alphabet;
     private StringBuilder temp;
 
-    public MarkovAlgorithm(String name, String description, String alphabet, boolean isNumeric) {
-        super(name, description, isNumeric);
+    public MarkovAlgorithm(String name, String description, String alphabet, int arity, boolean isNumeric) {
+        super(name, description, arity, isNumeric);
         this.alphabet = alphabet.toCharArray();
     }
 
@@ -76,9 +77,8 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
             rule.append(left);
             rule.append(" ->");
             if (isEnd)
-                rule.append(". ");
-            else
-                rule.append(' ');
+                rule.append('.');
+            rule.append(' ');
             rule.append(right).append('}');
             return rule.toString();
         }
@@ -86,6 +86,9 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
 
     @Override
     public String execute(String input, int steps) {
+        if (isNumeric)
+            input = convertFromNumeric(input);
+
         temp = new StringBuilder(input);
         commands.forEach(rule -> rule.matcher =
             Pattern.compile(isNumeric ? rule.left.replace("|", "\\|") : rule.left)
@@ -103,7 +106,7 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
                     break;
             }
         }
-        return isNumeric ? convertNumeric(temp) : temp.toString();
+        return isNumeric ? convertToNumeric(temp) : temp.toString();
     }
 
     @Override
