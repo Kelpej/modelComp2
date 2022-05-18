@@ -1,32 +1,66 @@
 package models;
 
+import utils.json.Exportable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public abstract class ComputationModel<T extends Command> {
+public abstract class ComputationModel<T extends Command> implements Exportable {
     protected String name;
     protected String description;
     protected int arity;
-    protected List<T> commands;
     protected boolean isNumeric;
+    protected List<T> commands;
 
-    protected ComputationModel(String name, String description, int arity, boolean isNumeric) {
-        this.name = name;
-        this.description = description;
-        this.arity = arity;
-        this.isNumeric = isNumeric;
+    protected ComputationModel(Builder<?> b) {
+        this.name = b.name;
+        this.description = b.description;
+        this.arity = b.arity;
+        this.isNumeric = b.isNumeric;
         this.commands = new ArrayList<>();
     }
 
+    public abstract static class Builder<B extends Builder<B>> {
+        private String name;
+        private String description;
+        private int arity = 1;
+        private boolean isNumeric = true;
+
+        public B addName(String name) {
+            this.name = name;
+            return self();
+        }
+
+        public B addDescription(String description) {
+            this.description = description;
+            return self();
+        }
+
+        public B setArity(int arity) {
+            this.arity = arity;
+            return self();
+        }
+
+        public B setIsNumeric(boolean isNumeric) {
+            this.isNumeric = isNumeric;
+            return self();
+        }
+
+        protected abstract B self();
+        public abstract ComputationModel<?> build();
+    }
+
     public abstract String execute(String input, int steps);
+
+    public abstract T createCommand();
 
     public void addCommand(T command) {
         commands.add(command);
     }
 
-    public void addCommands(List<T> commands) {
-        this.commands.addAll(commands);
+    public List<T> getCommands() {
+        return commands;
     }
 
     protected static String convertToNumeric(StringBuilder output) {
@@ -38,6 +72,6 @@ public abstract class ComputationModel<T extends Command> {
     }
 
     protected static String convertFromNumeric(String number) {
-        return "|".repeat(Math.max(0, Integer.parseInt(number)));
+        return "|".repeat(Integer.parseInt(number));
     }
 }

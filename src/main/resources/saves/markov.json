@@ -1,0 +1,1 @@
+[{"alphabet":["|","#","b"],"name":"sasha","description":"lox","arity":1,"isNumeric":true,"commands":[{"left":"abc","right":"bca","isEnd":false},{"left":"lox","right":"sasha","isEnd":true}]}]

@@ -1,9 +1,8 @@
-package models.markov;
+package models.realisations;
 
 import models.ComputationModel;
 import models.Command;
 
-import java.io.FilterOutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -14,13 +13,32 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
     private char[] alphabet;
     private StringBuilder temp;
 
-    public MarkovAlgorithm(String name, String description, String alphabet, int arity, boolean isNumeric) {
-        super(name, description, arity, isNumeric);
-        this.alphabet = alphabet.toCharArray();
+    private MarkovAlgorithm(Builder b) {
+        super(b);
+        this.alphabet = b.alphabet;
     }
 
-    public final class Rule extends Command {
-        private Matcher matcher;
+    public static class Builder extends ComputationModel.Builder<Builder> {
+        private char[] alphabet = {'|', '#'};
+        public Builder setAlphabet(String alphabet) {
+            this.alphabet = alphabet.toCharArray();
+            return self();
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        public ComputationModel<MarkovAlgorithm.Rule> build() {
+            return new MarkovAlgorithm(self());
+        }
+
+    }
+
+    public final class Rule implements Command {
+        private transient Matcher matcher;
         private String left;
         private String right;
         private boolean isEnd;
@@ -31,12 +49,17 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
             this.isEnd = isEnd;
         }
 
+        public Rule() {
+
+        }
+
         @Override
         public void execute() {
-            if (left.isEmpty())
-                temp.insert(0, right);
-            else
+            if (!left.isEmpty()) {
                 temp.replace(matcher.start(), matcher.end(), right);
+                return;
+            }
+            temp.insert(0, right);
         }
 
         @Override
@@ -50,24 +73,24 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
             return left;
         }
 
-        public void setLeft(String left) {
+        public Rule setLeft(String left) {
             this.left = left;
+            return this;
         }
 
-        public String getRight() {
-            return right;
-        }
-
-        public void setRight(String right) {
+        public Rule setRight(String right) {
             this.right = right;
+            return this;
         }
 
-        public boolean isEnd() {
-            return isEnd;
-        }
-
-        public void setEnd(boolean end) {
+        public Rule setIsEnd(boolean end) {
             isEnd = end;
+            return this;
+        }
+
+        @Override
+        public String[] toCellFormat() {
+            return new String[]{left, right, String.valueOf(isEnd)};
         }
 
         @Override
@@ -82,8 +105,8 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
             rule.append(right).append('}');
             return rule.toString();
         }
-    }
 
+    }
     @Override
     public String execute(String input, int steps) {
         if (isNumeric)
@@ -110,18 +133,21 @@ public final class MarkovAlgorithm extends ComputationModel<MarkovAlgorithm.Rule
     }
 
     @Override
+    public Rule createCommand() {
+        return new Rule();
+    }
+
+    @Override
     public void addCommand(Rule command) {
         commands.add(command);
     }
 
     @Override
     public String toString() {
-        final StringBuilder markov = new StringBuilder("MarkovAlgorithm{");
-        markov.append("name='").append(name).append('\'');
-        markov.append(", description='").append(description).append('\'');
-        markov.append(", commands=").append(commands);
-        markov.append(", alphabet=").append(Arrays.toString(alphabet));
-        markov.append('}');
-        return markov.toString();
+        return  "MarkovAlgorithm{" + "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", commands=" + commands +
+                ", alphabet=" + Arrays.toString(alphabet) +
+                '}';
     }
 }

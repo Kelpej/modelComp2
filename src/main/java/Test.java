@@ -1,21 +1,30 @@
-import models.markov.MarkovAlgorithm;
-import models.markov.MarkovController;
-
-import java.util.List;
+import models.realisations.MarkovAlgorithm;
+import controllers.MarkovController;
+import utils.json.JsonWriter;
 
 public class Test {
     public static void main(String[] args) {
-        var algorithm = new MarkovAlgorithm("sasha", "lox", "|#b", 1, true);
-        var commands = List.of(
-                algorithm.new Rule("#|", "|#", false),
-                algorithm.new Rule("#", "||b", false),
-                algorithm.new Rule("|||b", "b", false),
-                algorithm.new Rule("b", "", true),
-                algorithm.new Rule("", "#", false)
-        );
-        algorithm.addCommands(commands);
-        System.out.println(algorithm);
-        var controller = new MarkovController(List.of(algorithm));
-        System.out.println(controller.execute(0, String.valueOf(200000), Integer.MAX_VALUE));
+        var algorithm1 =
+                new MarkovAlgorithm.Builder()
+                        .addName("sasha")
+                        .addDescription("lox")
+                        .setAlphabet("|#b")
+                        .setArity(1)
+                        .setIsNumeric(true)
+                        .build();
+
+        algorithm1.addCommand(algorithm1.createCommand()
+                .setLeft("abc")
+                .setRight("bca")
+                .setIsEnd(false));
+
+        algorithm1.addCommand(algorithm1.createCommand()
+                .setLeft("lox")
+                .setRight("sasha")
+                .setIsEnd(true));
+
+        var controller = MarkovController.getInstance();
+        System.out.println(controller.getModels());
+        JsonWriter.writeToFile("markov.json", controller.getModels());
     }
 }
