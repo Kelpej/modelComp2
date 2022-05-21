@@ -3,9 +3,9 @@ package commands;
 import models.ComputationController;
 
 public abstract class AppCommand {
-    protected final ComputationController<?> controller;
+    protected final ComputationController controller;
 
-    protected AppCommand(ComputationController<?> controller) {
+    protected AppCommand(ComputationController controller) {
         this.controller = controller;
     }
 

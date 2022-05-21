@@ -1,31 +1,32 @@
 package models;
 
-import utils.json.Exportable;
+import utils.ModelRuntime;
+import utils.Exportable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
-public abstract class ComputationModel<T extends Command> implements Exportable {
+public abstract class ComputationModel<T extends Instruction> implements Exportable {
     protected String name;
     protected String description;
     protected int arity;
     protected boolean isNumeric;
-    protected List<T> commands;
+    protected List<T> instructions;
 
-    protected ComputationModel(Builder<?> b) {
+    protected ComputationModel(Builder<T, ?> b) {
         this.name = b.name;
         this.description = b.description;
         this.arity = b.arity;
         this.isNumeric = b.isNumeric;
-        this.commands = new ArrayList<>();
+        this.instructions = b.instructions == null ? new ArrayList<>() : b.instructions;
     }
 
-    public abstract static class Builder<B extends Builder<B>> {
+    public static abstract class Builder<T, B extends Builder<T, B>> {
         private String name;
         private String description;
         private int arity = 1;
         private boolean isNumeric = true;
+        private List<T> instructions;
 
         public B addName(String name) {
             this.name = name;
@@ -47,31 +48,49 @@ public abstract class ComputationModel<T extends Command> implements Exportable 
             return self();
         }
 
+        public B setInstructions(List<T> instructions) {
+            this.instructions = instructions;
+            return self();
+        }
+
         protected abstract B self();
         public abstract ComputationModel<?> build();
     }
 
-    public abstract String execute(String input, int steps);
+    public abstract void checkInstructionFields(T instruction) throws IllegalArgumentException;
 
-    public abstract T createCommand();
+    public abstract String execute(boolean debug, ModelRuntime runtime,  String... input);
 
-    public void addCommand(T command) {
-        commands.add(command);
+    public abstract void addInstruction(T instruction);
+
+    public List<T> getInstructions() {
+        return instructions;
     }
 
-    public List<T> getCommands() {
-        return commands;
+    public String getName() {
+        return name;
     }
 
-    protected static String convertToNumeric(StringBuilder output) {
-        var matcher = Pattern.compile("\\|+").matcher(output);
-        while (matcher.find(0))
-            output.replace(matcher.start(), matcher.end(),
-                    String.valueOf(output.substring(matcher.start(), matcher.end()).length()));
-        return output.length() == 0 ? String.valueOf(0) : output.toString();
+    public String getDescription() {
+        return description;
     }
 
-    protected static String convertFromNumeric(String number) {
-        return "|".repeat(Integer.parseInt(number));
+    public int getArity() {
+        return arity;
+    }
+
+    public boolean isNumeric() {
+        return isNumeric;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ComputationModel)) return false;
+
+        ComputationModel<?> that = (ComputationModel<?>) o;
+
+        if (getArity() != that.getArity()) return false;
+        return getName().equals(that.getName());
     }
 }

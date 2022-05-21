@@ -1,1 +1,169 @@
-[{"alphabet":["|","#","b"],"name":"sasha","description":"lox","arity":1,"isNumeric":true,"commands":[{"left":"abc","right":"bca","isEnd":false},{"left":"lox","right":"sasha","isEnd":true}]}]
+[
+  {
+    "name": "sum",
+    "description": "x, y -\u003e x \u003e y ? x : y",
+    "arity": 2,
+    "isNumeric": true,
+    "instructions": [
+      {
+        "left": "|a",
+        "right": "a|",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "b|",
+        "right": "|b",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "|#|",
+        "right": "a#b",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "|#",
+        "right": "at",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "#|",
+        "right": "fb",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "af",
+        "right": "f",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "tb",
+        "right": "t",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "a",
+        "right": "|",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "b",
+        "right": "|",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "t",
+        "right": "",
+        "isEnd": true,
+        "comment": ""
+      },
+      {
+        "left": "f",
+        "right": "",
+        "isEnd": true,
+        "comment": ""
+      },
+      {
+        "left": "",
+        "right": "#",
+        "isEnd": false,
+        "comment": ""
+      }
+    ]
+  },
+  {
+    "name": "sasha",
+    "description": "lox",
+    "arity": 2,
+    "isNumeric": true,
+    "instructions": []
+  },
+  {
+    "name": "sum",
+    "description": "x, y -\u003e x \u003e y ? x : y",
+    "arity": 2,
+    "isNumeric": true,
+    "instructions": [
+      {
+        "left": "|a",
+        "right": "a|",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "b|",
+        "right": "|b",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "|#|",
+        "right": "a#b",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "|#",
+        "right": "at",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "#|",
+        "right": "fb",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "af",
+        "right": "f",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "tb",
+        "right": "t",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "a",
+        "right": "|",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "b",
+        "right": "|",
+        "isEnd": false,
+        "comment": ""
+      },
+      {
+        "left": "t",
+        "right": "",
+        "isEnd": true,
+        "comment": ""
+      },
+      {
+        "left": "f",
+        "right": "",
+        "isEnd": true,
+        "comment": ""
+      },
+      {
+        "left": "",
+        "right": "#",
+        "isEnd": false,
+        "comment": ""
+      }
+    ]
+  }
+]

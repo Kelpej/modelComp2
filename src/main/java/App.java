@@ -1,6 +1,8 @@
+import com.formdev.flatlaf.FlatDarkLaf;
 import ui.MainPanel;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class App {
     public static void main(String[] args) {
@@ -13,9 +15,15 @@ public class App {
     }
 
     private static void createGUI() {
-        MainPanel ui = new MainPanel();
+        try {
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+        MainPanel ui = MainPanel.getUI();
         JPanel root = ui.getRootPanel();
         JFrame frame = new JFrame();
+        frame.setMinimumSize(new Dimension(800, 400));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(root);
         frame.pack();
