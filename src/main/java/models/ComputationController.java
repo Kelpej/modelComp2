@@ -1,6 +1,7 @@
 package models;
 
 import commands.CommandExecutor;
+import ui.MainPanel;
 import utils.Exportable;
 import utils.ModelRuntime;
 
@@ -21,14 +22,22 @@ public abstract class ComputationController<M extends ComputationModel<?>> imple
 
     public void nextModel() {
         int index = models.indexOf(currentModel);
-        if (index < models.size() - 1)
+        if (index < models.size() - 1) {
             currentModel = models.get(++index);
+        } else {
+            currentModel = models.get(0);
+        }
+        MainPanel.getUI().updateUI();
     }
 
     public void previousModel() {
         int index = models.indexOf(currentModel);
-        if (index > 0)
+        if (index > 0) {
             currentModel = models.get(--index);
+        } else {
+            currentModel = models.get(models.size() - 1);
+        }
+        MainPanel.getUI().updateUI();
     }
 
     public String execute(boolean debug, String... input) {

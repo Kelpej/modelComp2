@@ -106,6 +106,7 @@
                 </constraints>
                 <properties>
                   <minimumSize width="200" height="30"/>
+                  <visible value="false"/>
                 </properties>
               </component>
             </children>

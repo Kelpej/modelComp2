@@ -8,7 +8,7 @@ public class RemoveInstructionCommand extends AppCommand {
     private final Instruction removed;
     private final int removedIndex;
 
-    protected RemoveInstructionCommand(ComputationController controller, Instruction removed) {
+    public RemoveInstructionCommand(ComputationController controller, Instruction removed) {
         super(controller);
         this.removed = removed;
         this.removedIndex = controller.getCurrentModel().getInstructions().indexOf(removed);

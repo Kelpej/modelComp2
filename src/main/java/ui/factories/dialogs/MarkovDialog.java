@@ -2,12 +2,12 @@ package ui.factories.dialogs;
 
 import commands.AddInstructionCommand;
 import commands.EditInstructionCommand;
+import commands.RemoveInstructionCommand;
 import controllers.MarkovController;
 import models.realisations.MarkovAlgorithm;
 import ui.MainPanel;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 
 public class MarkovDialog extends JDialog {
@@ -26,34 +26,31 @@ public class MarkovDialog extends JDialog {
     private JLabel comment;
 
     private boolean edit;
+    private int row;
     private MarkovAlgorithm.Rule rule;
     private MarkovController controller;
 
-    public MarkovDialog(MarkovController controller) {
+    public MarkovDialog(MarkovController controller) { //simple add
         this.controller = controller;
         edit = false;
+        row = controller.getCurrentModel().getInstructions().size();
         init();
     }
 
-    public MarkovDialog(int row, int column, MarkovController controller) {
+    public MarkovDialog(boolean edit, int row, MarkovController controller) { //add by index or edit
         this.controller = controller;
-        edit = true;
+        this.row = row;
+        this.edit = edit;
         init();
-        rule = controller.getCurrentModel().getInstructions().get(row);
-        removeButton.setVisible(true);
-        buttonOK.setText("Edit");
-        leftField.setText(rule.getLeft());
-        rightField.setText(rule.getRight());
-        isEndCheckBox.setSelected(rule.isEnd());
-        commentField.setText(rule.getComment());
 
-        System.out.println(column);
-        switch (column) {
-            case 0 -> leftField.requestFocusInWindow();
-            case 1 -> rightField.requestFocusInWindow();
-            case 2 -> isEndCheckBox.requestFocusInWindow();
-            case 3 -> commentField.requestFocusInWindow();
-        }
+//        focus code
+//        System.out.println(column);
+//        switch (column) {
+//            case 0 -> leftField.requestFocusInWindow();
+//            case 1 -> rightField.requestFocusInWindow();
+//            case 2 -> isEndCheckBox.requestFocusInWindow();
+//            case 3 -> commentField.requestFocusInWindow();
+//        }
     }
 
     private MarkovAlgorithm.Rule grabData() {
@@ -73,9 +70,9 @@ public class MarkovDialog extends JDialog {
         dispose();
     }
 
-    private void onCreate() {
+    private void onCreate(int row) {
         controller.executor().execute(
-                new AddInstructionCommand(controller, grabData())
+                new AddInstructionCommand(controller, row, grabData())
         );
         controller.writeChanges();
         dispose();
@@ -100,13 +97,30 @@ public class MarkovDialog extends JDialog {
                     MainPanel.getUI().updateUI();
                 }
             });
+            rule = controller.getCurrentModel().getInstructions().get(row);
+            removeButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    controller.executor().execute(
+                            new RemoveInstructionCommand(controller, rule)
+                    );
+                    MainPanel.getUI().updateUI();
+                    dispose();
+                }
+            });
+            buttonOK.setText("Edit");
+            leftField.setText(rule.getLeft());
+            rightField.setText(rule.getRight());
+            isEndCheckBox.setSelected(rule.isEnd());
+            commentField.setText(rule.getComment());
         } else {
             buttonOK.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    onCreate();
+                    onCreate(row);
                     MainPanel.getUI().updateUI();
                 }
             });
+            removeButton.setVisible(false);
         }
 
         buttonCancel.addActionListener(new ActionListener() {

@@ -1,5 +1,7 @@
 package ui;
 
+import commands.MoveDownCommand;
+import commands.MoveUpCommand;
 import controllers.MarkovController;
 import models.ComputationController;
 import ui.factories.InstructionDialogFactory;
@@ -13,6 +15,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.EventObject;
 
 public class MainPanel extends JFrame{
     private JPanel mainPanel;
@@ -78,7 +81,7 @@ public class MainPanel extends JFrame{
         addModel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                var createModelWindow = new ModelDialog(false, currentModelType, getUI());
+                var createModelWindow = new ModelDialog(false, currentModelType);
                 createModelWindow.pack();
                 createModelWindow.setVisible(true);
             }
@@ -86,7 +89,7 @@ public class MainPanel extends JFrame{
         editModel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                var createModelWindow = new ModelDialog(true, currentModelType, getUI());
+                var createModelWindow = new ModelDialog(true, currentModelType);
                 createModelWindow.pack();
                 createModelWindow.setVisible(true);
             }
@@ -94,10 +97,10 @@ public class MainPanel extends JFrame{
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (table.isRowSelected(table.getSelectedRow())) {
+                if (table.isRowSelected(table.getSelectedRow()) && e.getClickCount() == 2) {
                     int row = table.getSelectedRow();
-                    int column = table.getSelectedColumn();
-                    InstructionDialogFactory.createDialog(row, column, currentModelType);
+//                    int column = table.getSelectedColumn();
+                    InstructionDialogFactory.createDialog(true, row, currentModelType);
                 }
             }
         });
@@ -118,7 +121,12 @@ public class MainPanel extends JFrame{
         addInstruction.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                InstructionDialogFactory.createDialog(currentModelType);
+                if (table.isRowSelected(table.getSelectedRow())) {
+                    int row = table.getSelectedRow();
+                    InstructionDialogFactory.createDialog(false, row, currentModelType);
+                } else {
+                    InstructionDialogFactory.createDialog(currentModelType);
+                }
             }
         });
         undo.addMouseListener(new MouseAdapter() {
@@ -135,6 +143,34 @@ public class MainPanel extends JFrame{
                 renderTable();
             }
         });
+        moveUp.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (table.isRowSelected(table.getSelectedRow())) {
+                    int row = table.getSelectedRow();
+                    currentController.executor().execute(
+                            new MoveUpCommand(currentController, row)
+                    );
+                    currentController.writeChanges();
+                    getUI().updateUI();
+                    table.changeSelection(row - 1, 0, false, false);
+                }
+            }
+        });
+        moveDown.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (table.isRowSelected(table.getSelectedRow())) {
+                    int row = table.getSelectedRow();
+                    currentController.executor().execute(
+                            new MoveDownCommand(currentController, row)
+                    );
+                    currentController.writeChanges();
+                    getUI().updateUI();
+                    table.changeSelection(row + 1, 0, false, false);
+                }
+            }
+        });
     }
 
     public void updateUI() {
@@ -147,7 +183,7 @@ public class MainPanel extends JFrame{
                 .forEach(modelType::addItem);
     }
 
-    private void renderModelInfo() {
+    public void renderModelInfo() {
         var model = currentController.getCurrentModel();
         modelName.setText(model.getName());
         modelDescription.setText(model.getDescription());
@@ -155,7 +191,7 @@ public class MainPanel extends JFrame{
         modelIsNumeric.setText(String.valueOf(model.isNumeric() ? UTFChar.TRUE : UTFChar.FALSE));
     }
 
-    private void renderTable() {
+    public void renderTable() {
         TableFactory.createTable(currentModelType, table);
     }
 

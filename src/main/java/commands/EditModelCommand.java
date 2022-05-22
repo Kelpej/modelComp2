@@ -15,13 +15,15 @@ public class EditModelCommand extends AppCommand{
 
     @Override
     public void execute() {
-        int index = controller.getModels().indexOf(old);
-        controller.getModels().set(index, edited);
+        var models = controller.getModels();
+        models.set(models.indexOf(old), edited);
+        controller.nextModel();
     }
 
     @Override
     public void backup() {
-        int index = controller.getModels().indexOf(edited);
-        controller.getModels().set(index, old);
+        var models = controller.getModels();
+        models.set(models.indexOf(edited), old);
+        controller.nextModel();
     }
 }

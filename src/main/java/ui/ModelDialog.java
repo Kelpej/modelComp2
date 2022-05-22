@@ -2,6 +2,7 @@ package ui;
 
 import commands.AddModelCommand;
 import commands.EditModelCommand;
+import commands.RemoveModelCommand;
 import models.ComputationController;
 import models.ComputationModel;
 import models.realisations.MarkovAlgorithm;
@@ -38,20 +39,35 @@ public class ModelDialog<M extends ComputationModel<?>> extends JDialog {
     private ComputationController controller;
     private ComputationModel.Builder builder;
 
-    public ModelDialog(boolean edit, ModelType model, JFrame frame) {
-        setLocationRelativeTo(frame);
+    public ModelDialog(boolean edit, ModelType model) {
+        setLocationRelativeTo(MainPanel.getUI());
         this.edit = edit;
         this.controller = model.getController();
         this.builder = switch (model) {
             case MARKOV -> new MarkovAlgorithm.Builder();
         };
 
-        if (edit)
+        if (edit) {
             init(controller);
+        }
+        else {
+            removeButton.setVisible(false);
+        }
 
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(okButton);
+
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.executor().execute(
+                        new RemoveModelCommand(controller)
+                );
+                controller.writeChanges();
+                dispose();
+            }
+        });
 
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -64,8 +80,9 @@ public class ModelDialog<M extends ComputationModel<?>> extends JDialog {
                 onCancel();
             }
         });
-
         // call onCancel() when cross is clicked
+
+
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -99,6 +116,7 @@ public class ModelDialog<M extends ComputationModel<?>> extends JDialog {
                 controller.executor().execute(
                         new EditModelCommand(controller, model)
                 );
+                MainPanel.getUI().renderModelInfo();
             } else {
                 var model = builder.build();
                 controller.executor().execute(
@@ -106,14 +124,13 @@ public class ModelDialog<M extends ComputationModel<?>> extends JDialog {
                 );
                 controller.nextModel();
             }
+            controller.writeChanges();
+            dispose();
         } catch (NumberFormatException nfe) {
             JOptionPane.showMessageDialog(this, "Arity must be an integer!");
         } catch (IllegalArgumentException iae) {
             JOptionPane.showMessageDialog(this, iae.getMessage());
         }
-        controller.writeChanges();
-        MainPanel.getUI().updateUI();
-        dispose();
     }
 
     private void onCancel() {
@@ -122,11 +139,11 @@ public class ModelDialog<M extends ComputationModel<?>> extends JDialog {
     }
 
     private void init(ComputationController controller) {
+        okButton.setText("Edit");
         var model = controller.getCurrentModel();
         nameField.setText(model.getName());
         descriptionField.setText(model.getDescription());
         arityField.setText(String.valueOf(model.getArity()));
         isNumeric.setSelected(model.isNumeric());
-        removeButton.setVisible(true);
     }
 }
