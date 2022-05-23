@@ -25,6 +25,10 @@ public enum ModelType {
         return controller;
     }
 
+    public String[] getTableColumns() {
+        return tableColumns;
+    }
+
     public String[] getLogFormat() {
         return logFormat;
     }

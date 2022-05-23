@@ -6,14 +6,12 @@ import models.ComputationController;
 import models.realisations.MarkovAlgorithm;
 import utils.Exportable;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -29,18 +27,27 @@ public class MarkovController extends ComputationController<MarkovAlgorithm> {
             return controller;
 
         controller = new MarkovController();
-        controller.getModels().addAll(controller.parseJson().orElseThrow());
+        controller.parseJson().ifPresent(models -> controller.getModels().addAll(models));
+
         if (!controller.getModels().isEmpty())
             controller.currentModel = controller.getModels().get(0);
+
         return controller;
     }
 
     @Override
     public void writeChanges() {
-        try (var writer = new PrintWriter(new BufferedWriter(new FileWriter(SAVE_PATH.concat("markov.json"))));){
+//        try (var writer = new PrintWriter(new BufferedWriter(new FileWriter(SAVE_PATH.concat("markov.json"))));){
+//            new Gson().toJson(models, writer);
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
+        try {
+            var writer = new PrintWriter(
+                    this.getClass().getResource("/saves/markov.json").getFile());
             new Gson().toJson(models, writer);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -61,10 +68,10 @@ public class MarkovController extends ComputationController<MarkovAlgorithm> {
 
         return new String[] {input};
     }
-
+    //io resources outside of jar
     @Override
     public Optional<List<MarkovAlgorithm>> parseJson() {
-        try (var br = Files.newBufferedReader(Path.of(SAVE_PATH.concat("markov.json")))) {
+        try (var br = new InputStreamReader(this.getClass().getResourceAsStream("/saves/markov.json"))) {
             return Optional.of(new Gson().fromJson(br, new TypeToken<List<MarkovAlgorithm>>() {}.getType()));
         } catch (IOException e) {
             e.printStackTrace();
